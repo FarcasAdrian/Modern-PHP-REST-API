@@ -1,0 +1,33 @@
+{
+  "name": "adrian/rest-api",
+  "description": "Modern implementation of REST API",
+  "minimum-stability": "dev",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Adrian Faras",
+      "email": "farcasadrian94@gmail.com"
+    }
+  ],
+  "require": {
+    "ext-mysqli": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Db\\": "src/Db/",
+      "Classes\\": "src/Classes/"
+    }
+  },
+  "scripts": {
+    "post-update-cmd": [
+      "@auto-scripts",
+      "composer dump-autoload"
+    ],
+    "post-autoload-dump": [
+      "composer dump-autoload"
+    ],
+    "auto-scripts": [
+      "composer dump-autoload"
+    ]
+  }
+}
