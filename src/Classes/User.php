@@ -2,7 +2,7 @@
 
 namespace Classes;
 
-use Db\Database as Database;
+use Classes\Db\Database;
 use Exception;
 
 class User

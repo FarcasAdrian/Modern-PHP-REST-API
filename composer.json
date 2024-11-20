@@ -10,12 +10,15 @@
     }
   ],
   "require": {
-    "ext-mysqli": "*"
+    "ext-mysqli": "*",
+    "ext-json": "*",
+    "ext-http": "*"
   },
   "autoload": {
     "psr-4": {
-      "Db\\": "src/Db/",
-      "Classes\\": "src/Classes/"
+      "Configurations\\": "src/Configurations/",
+      "Classes\\": "src/Classes/",
+      "Controllers\\": "src/Controllers/"
     }
   },
   "scripts": {

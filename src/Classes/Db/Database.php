@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Db;
+namespace Classes\Db;
 
 use Exception;
 use mysqli;
 use mysqli_stmt;
-use Db\DatabaseMySQLi as DatabaseMySQLi;
 
 class Database
 {
