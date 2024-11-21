@@ -15,6 +15,11 @@ class DatabaseMySQLi
 
     private function __construct() {}
 
+    public function __destruct()
+    {
+        self::closeConnection();
+    }
+
     /**
      * Create the database instance only if it's not created yet and return it.
      * @return mysqli|null

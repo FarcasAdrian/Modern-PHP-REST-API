@@ -2,138 +2,156 @@
 
 namespace Controllers;
 
+use Classes\Request;
 use Classes\Response;
 use Classes\User;
 use Exception;
+use HttpResponseException;
 
 class UserController
 {
     private User $user;
     private Response $response;
+    private Request $request;
 
-    public function __construct(User $user, Response $response)
+    public function __construct(User $user, Response $response, Request $request)
     {
         $this->user = $user;
         $this->response = $response;
+        $this->request = $request;
     }
 
     /**
      * Retrieve all available users.
      * @return void
+     * @throws HttpResponseException
      */
     public function getAll(): void
     {
-        $request_method = $this->getRequestMethod();
+        $request_method = $this->request->getRequestMethod();
 
         if ($request_method !== 'GET' && $request_method !== 'POST') {
-            $this->sendResponse(
+            $this->response->sendResponse(
                 Response::METHOD_NOT_ALLOWED_STATUS_CODE,
                 'Method not allowed. Only allowed methods: GET, POST.'
             );
+            return;
         }
 
         try {
             $users = $this->user->getAll();
-            $this->sendResponse(
+            $this->response->sendResponse(
                 Response::SUCCESS_STATUS_CODE,
-                'Users retrieved with success.',
+                'Users retrieved successfully.',
                 $users
             );
         } catch (Exception $exception) {
-            $this->sendResponse(Response::INTERNAL_SERVER_ERROR_STATUS_CODE, $exception->getMessage());
+            $this->response->sendResponse(Response::INTERNAL_SERVER_ERROR_STATUS_CODE, $exception->getMessage());
         }
     }
 
     /**
-     * Retrieve a specific user by it's id.
+     * Retrieve a specific user by id.
      * @return void
+     * @throws HttpResponseException
      */
     public function get(): void
     {
-        if ($this->getRequestMethod() !== 'GET') {
-            $this->sendResponse(
+        if ($this->request->getRequestMethod() !== 'GET') {
+            $this->response->sendResponse(
                 Response::METHOD_NOT_ALLOWED_STATUS_CODE,
-                'Method now allowed. Only allowed methods: GET.'
+                'Method now allowed. Only allowed method: GET.'
             );
+            return;
         }
 
-        $this->validateUserId($_GET);
+        $query_parameters = $this->request->getQueryParameters();
+        $this->validateUserId($query_parameters);
 
         try {
-            $user_id = (int) $_GET['user_id'];
+            $user_id = (int) $this->request->getParameter('user_id');
             $user = $this->user->getById($user_id);
 
             if (empty($user)) {
-                $this->sendResponse(Response::NOT_FOUND_STATUS_CODE, 'User not found.');
+                $this->response->sendResponse(Response::NOT_FOUND_STATUS_CODE, 'User not found.');
+                return;
             }
 
-            $this->sendResponse(Response::SUCCESS_STATUS_CODE, 'User retrieved with success.', $user);
+            $this->response->sendResponse(Response::SUCCESS_STATUS_CODE, 'User retrieved with success.', $user);
         } catch (Exception $exception) {
-            $this->sendResponse(Response::INTERNAL_SERVER_ERROR_STATUS_CODE, $exception->getMessage());
+            $this->response->sendResponse(Response::INTERNAL_SERVER_ERROR_STATUS_CODE, $exception->getMessage());
         }
     }
 
     /**
      * Update information for a specific user.
      * @return void
+     * @throws HttpResponseException
      */
     public function update(): void
     {
-        if ($this->getRequestMethod() !== 'POST') {
-            $this->sendResponse(
+        if ($this->request->getRequestMethod() !== 'POST') {
+            $this->response->sendResponse(
                 Response::METHOD_NOT_ALLOWED_STATUS_CODE,
-                'Method now allowed. Only allowed methods: POST'
+                'Method now allowed. Only allowed method: POST.'
             );
+            return;
         }
 
-        $this->validateUserId($_POST);
+        $post_parameters = $this->request->getPostParameters();
+        $this->validateUserId($post_parameters);
 
         try {
-            $user_id = (int) $_POST['user_id'];
-            $result = $this->user->update($user_id, $_POST);
+            $user_id = (int) $this->request->getParameter('user_id');
+            $result = $this->user->update($user_id, $post_parameters);
 
             if (empty($result)) {
-                $this->sendResponse(
+                $this->response->sendResponse(
                     Response::INTERNAL_SERVER_ERROR_STATUS_CODE,
                     'User could not be updated.'
                 );
+                return;
             }
 
-            $this->sendResponse(Response::SUCCESS_STATUS_CODE, 'User updated with success.', $result);
+            $this->response->sendResponse(Response::SUCCESS_STATUS_CODE, 'User updated with success.', $result);
         } catch (Exception $exception) {
-            $this->sendResponse(Response::INTERNAL_SERVER_ERROR_STATUS_CODE, $exception->getMessage());
+            $this->response->sendResponse(Response::INTERNAL_SERVER_ERROR_STATUS_CODE, $exception->getMessage());
         }
     }
 
     /**
      * Delete a specific user by id.
      * @return void
+     * @throws HttpResponseException
      */
     public function delete(): void
     {
-        if ($this->getRequestMethod() !== 'POST') {
-            $this->sendResponse(
+        if ($this->request->getRequestMethod() !== 'POST') {
+            $this->response->sendResponse(
                 Response::METHOD_NOT_ALLOWED_STATUS_CODE,
-                'Method now allowed. Only allowed methods: POST'
+                'Method now allowed. Only allowed method: POST.'
             );
+            return;
         }
 
-        $this->validateUserId($_POST);
+        $post_parameters = $this->request->getPostParameters();
+        $this->validateUserId($post_parameters);
 
         try {
-            $user_id = (int) $_POST['user_id'];
+            $user_id = (int) $this->request->getParameter('user_id');
             $result = $this->user->delete($user_id);
 
             if (!$result) {
-                $this->sendResponse(
+                $this->response->sendResponse(
                     Response::INTERNAL_SERVER_ERROR_STATUS_CODE,
-                    'User could not be remove.'
+                    'User could not be removed.'
                 );
+                return;
             }
 
-            $this->sendResponse(Response::SUCCESS_STATUS_CODE, 'User deleted with success.');
+            $this->response->sendResponse(Response::SUCCESS_STATUS_CODE, 'User deleted with success.');
         } catch (Exception $exception) {
-            $this->sendResponse(Response::INTERNAL_SERVER_ERROR_STATUS_CODE, $exception->getMessage());
+            $this->response->sendResponse(Response::INTERNAL_SERVER_ERROR_STATUS_CODE, $exception->getMessage());
         }
     }
 
@@ -141,36 +159,20 @@ class UserController
      * Verify if user id is valid.
      * @param array $request
      * @return bool
+     * @throws HttpResponseException
      */
-    public function validateUserId(array $request): bool
+    private function validateUserId(array $request): bool
     {
         if (!isset($request['user_id'])) {
-            $this->sendResponse(Response::CLIENT_ERROR_STATUS_CODE, 'user_id is required.');
+            $this->response->sendResponse(Response::CLIENT_ERROR_STATUS_CODE, 'user_id is required.');
+            return false;
         }
 
-        if (! (int) $request['user_id']) {
-            $this->sendResponse(Response::CLIENT_ERROR_STATUS_CODE, 'user_id is invalid.');
+        if (!$request['user_id']) {
+            $this->response->sendResponse(Response::CLIENT_ERROR_STATUS_CODE, 'user_id is invalid.');
+            return false;
         }
 
         return true;
-    }
-
-    public function sendResponse(string $status_code, string $message, array $data = []): void
-    {
-        $data = [
-            'statusCode' => $status_code,
-            'success' => $this->response->responseWithSuccess($status_code),
-            'message' => $message,
-            'data' => $data,
-        ];
-        $this->response->sendResponse($status_code, $data);
-    }
-
-    /**
-     * @return string
-     */
-    public function getRequestMethod(): string
-    {
-        return (string) $_SERVER['REQUEST_METHOD'];
     }
 }

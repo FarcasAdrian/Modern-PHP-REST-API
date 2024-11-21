@@ -102,4 +102,28 @@ class Database
     {
         return $statement->affected_rows;
     }
+
+    /**
+     * @return void
+     */
+    public function beginTransaction(): void
+    {
+        $this->database->begin_transaction();
+    }
+
+    /**
+     * @return void
+     */
+    public function commit(): void
+    {
+        $this->database->commit();
+    }
+
+    /**
+     * @return void
+     */
+    public function rollback(): void
+    {
+        $this->database->rollback();
+    }
 }
