@@ -23,7 +23,7 @@ class Response
     {
         http_response_code($status_code);
         $json = json_encode([
-            'statusCode' => $status_code,
+            'status_code' => $status_code,
             'success' => $this->responseWithSuccess($status_code),
             'message' => $message,
             'data' => $data,

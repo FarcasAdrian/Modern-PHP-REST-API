@@ -2,33 +2,46 @@
 
 require_once 'vendor/autoload.php';
 
-use Controllers\UserController;
 use Classes\Db\Database;
-use Classes\User;
-use Classes\Response;
 use Classes\Request;
+use Classes\Response;
+use Classes\User\User;
+use Controllers\UserController;
+use Services\ValidationService;
 
 header("Content-Type: application/json");
 
-$request_method = $_SERVER['REQUEST_METHOD'];
-$request_uri = explode('/api/', $_SERVER['REQUEST_URI']);
-$endpoint = explode('?', end($request_uri));
-$request_endpoint = is_array($endpoint) ? $endpoint[0] : '';
-$endpoint_parameters = is_array($endpoint) && isset($endpoint[1]) ? $endpoint[1] : '';
+$response = new Response();
+$request = new Request();
+$request_endpoint = $request->getRequestEndpoint();
 
-if (in_array($request_endpoint, ['users', 'user'])) {
+if (in_array($request_endpoint, ['users', 'user', 'user/create', 'user/update', 'user/delete'])) {
     $database = new Database();
     $user = new User($database);
-    $response = new Response();
     $request = new Request();
-    $user_controller = new UserController($user, $response, $request);
+    $validation_service = new ValidationService();
+    $user_controller = new UserController($user, $response, $request, $validation_service);
 
-    if ($request_endpoint == 'users') {
-        $user_controller->getAll();
-    } else {
-        $user_controller->get();
+    switch ($request_endpoint) {
+        case 'users':
+            $user_controller->getAll();
+            break;
+        case 'user':
+            $user_controller->get();
+            break;
+        case 'user/create':
+            $user_controller->create();
+            break;
+        case 'user/update':
+            $user_controller->update();
+            break;
+        case 'user/delete':
+            $user_controller->delete();
+            break;
+        default:
+            $response->sendResponse(Response::NOT_FOUND_STATUS_CODE, 'Route not found.');
+            break;
     }
 } else {
-    http_response_code(400);
-    echo json_encode(["message" => "Route not found."]);
+    $response->sendResponse(Response::NOT_FOUND_STATUS_CODE, 'Route not found.');
 }

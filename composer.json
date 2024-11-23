@@ -18,7 +18,8 @@
     "psr-4": {
       "Configurations\\": "src/Configurations/",
       "Classes\\": "src/Classes/",
-      "Controllers\\": "src/Controllers/"
+      "Controllers\\": "src/Controllers/",
+      "Services\\": "src/Services/"
     }
   },
   "scripts": {

@@ -13,22 +13,10 @@ class Request
     public function __construct()
     {
         $this->request_method = (string) $_SERVER['REQUEST_METHOD'];
-        $this->setGetParameters();
+        $this->setQueryParameters();
         $this->setPostParameters();
         $this->setHeaders();
         $this->setCookies();
-    }
-
-    /**
-     * Return all request parameters ($_GET and $_POST).
-     * @return array
-     */
-    public function getAllParameters(): array
-    {
-        return [
-            'get_parameters' => $this->getQueryParameters(),
-            'post_parameters' => $this->getPostParameters(),
-        ];
     }
 
     /**
@@ -62,7 +50,7 @@ class Request
      * Set parameters from $_GET.
      * @return void
      */
-    private function setGetParameters(): void
+    private function setQueryParameters(): void
     {
         $query_parameters = filter_input_array(INPUT_GET, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $this->query_parameters = is_array($query_parameters) ? $query_parameters : [];
@@ -84,6 +72,12 @@ class Request
     private function setPostParameters(): void
     {
         $server_parameters = filter_input_array(INPUT_POST, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+        if (empty($server_parameters)) {
+            $raw_data = file_get_contents('php://input');
+            $server_parameters = json_decode($raw_data, true);
+        }
+
         $this->server_parameters = is_array($server_parameters) ? $server_parameters : [];
     }
 
@@ -114,7 +108,7 @@ class Request
         $this->headers = [];
 
         foreach ($_SERVER as $key => $value) {
-            if (substr($key, 0, 5) == 'HTTP_') {
+            if (str_starts_with($key, 'HTTP_')) {
                 // if we have HTTP_ACCEPT_ENCODING as key, the value from $header is Accept-Encoding
                 $header = ucwords(strtolower(substr($key, 5)), '_');
                 $header = str_replace('_', '-', $header);
@@ -140,5 +134,24 @@ class Request
     {
         $cookies = filter_input_array(INPUT_COOKIE, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $this->cookies = is_array($cookies) ? $cookies : [];
+    }
+
+    /**
+     * @return string
+     */
+    public function getRequestEndpoint(): string
+    {
+        $request_uri = explode('/api/', $this->getRequestUri());
+        $endpoint = explode('?', end($request_uri));
+
+        return is_array($endpoint) ? array_shift($endpoint) : '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getRequestUri(): string
+    {
+        return (string) $_SERVER['REQUEST_URI'];
     }
 }

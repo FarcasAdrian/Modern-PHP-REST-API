@@ -1,6 +1,6 @@
 <?php
 
-namespace Classes;
+namespace Classes\User;
 
 use Classes\Db\Database;
 use Exception;
@@ -8,7 +8,7 @@ use Exception;
 class User
 {
     private ?Database $database;
-    private const TABLE = 'user';
+    private const string TABLE = 'user';
 
     public function __construct(Database $database)
     {
@@ -32,17 +32,14 @@ class User
     }
 
     /**
-     * Add a new user.
-     * @param array $data
+     * Create a new user.
+     * @param UserEntity $user
      * @return array
      * @throws Exception
      */
-    public function add(array $data): array
+    public function create(UserEntity $user): array
     {
-        if (count($data) == 0) {
-            throw new Exception('Parameter $data can not be empty.');
-        }
-
+        $data = $user->toArray();
         $columns = implode(', ', array_keys($data));
         $placeholders = implode(', ', array_fill(0, count($data), '?'));
         $types = $this->getTypes($data);
@@ -57,14 +54,15 @@ class User
     /**
      * Update an existing user.
      * @param int $id
-     * @param array $data
+     * @param UserEntity $user
      * @return array|null
      * @throws Exception
      */
-    public function update(int $id, array $data): ?array
+    public function update(int $id, UserEntity $user): ?array
     {
         $this->validateId($id);
 
+        $data = $user->toArray();
         $set_clause = implode(' = ?, ', array_keys($data)) . ' = ?';
         $query = 'UPDATE ' . self::TABLE . ' SET ' . $set_clause . ' WHERE id = ?';
 

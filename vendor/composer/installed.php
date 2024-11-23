@@ -3,7 +3,7 @@
         'name' => 'adrian/rest-api',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'e4ad04a5c914bc56db9e60f44daa362736bf8a57',
+        'reference' => 'f927853dcd90819e8fab7215f6dc0819689fc387',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'adrian/rest-api' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'e4ad04a5c914bc56db9e60f44daa362736bf8a57',
+            'reference' => 'f927853dcd90819e8fab7215f6dc0819689fc387',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
