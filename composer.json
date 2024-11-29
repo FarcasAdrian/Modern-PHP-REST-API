@@ -12,7 +12,9 @@
   "require": {
     "ext-mysqli": "*",
     "ext-json": "*",
-    "ext-http": "*"
+    "ext-http": "*",
+    "firebase/php-jwt": "*",
+    "vlucas/phpdotenv": "*"
   },
   "autoload": {
     "psr-4": {

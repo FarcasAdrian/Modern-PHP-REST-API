@@ -100,6 +100,19 @@ class Request
     }
 
     /**
+     * @param string $key
+     * @return string
+     */
+    public function getHeader(string $key): string
+    {
+        if (isset($this->headers[$key])) {
+            return $this->headers[$key];
+        }
+
+        return '';
+    }
+
+    /**
      * Set headers from $_SERVER.
      * @return void
      */
@@ -114,6 +127,10 @@ class Request
                 $header = str_replace('_', '-', $header);
                 $this->headers[$header] = $value;
             }
+        }
+
+        if (function_exists('apache_request_headers')) {
+            $this->headers = array_merge($this->headers, apache_request_headers());
         }
     }
 

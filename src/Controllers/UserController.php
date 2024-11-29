@@ -7,7 +7,6 @@ use Classes\Response;
 use Classes\User\User;
 use Classes\User\UserEntity;
 use Exception;
-use HttpResponseException;
 use Services\ValidationService;
 
 class UserController
@@ -26,14 +25,11 @@ class UserController
     }
 
     /**
-     * Retrieve all available users.
      * @return void
-     * @throws HttpResponseException
      */
     public function getAll(): void
     {
         $request_method = $this->request->getRequestMethod();
-
         if ($request_method !== 'GET' && $request_method !== 'POST') {
             $this->response->sendResponse(
                 Response::METHOD_NOT_ALLOWED_STATUS_CODE,
@@ -55,9 +51,7 @@ class UserController
     }
 
     /**
-     * Retrieve a specific user by id.
      * @return void
-     * @throws HttpResponseException
      */
     public function get(): void
     {
@@ -70,7 +64,9 @@ class UserController
         }
 
         $query_parameters = $this->request->getQueryParameters();
-        $this->validateUserId($query_parameters);
+        if (!$this->validateUserId($query_parameters)) {
+            return;
+        }
 
         try {
             $user_id = (int) $this->request->getParameter('user_id');
@@ -88,9 +84,7 @@ class UserController
     }
 
     /**
-     * Create a new user.
      * @return void
-     * @throws HttpResponseException
      */
     public function create(): void
     {
@@ -126,9 +120,7 @@ class UserController
     }
 
     /**
-     * Update information for a specific user.
      * @return void
-     * @throws HttpResponseException
      */
     public function update(): void
     {
@@ -141,10 +133,16 @@ class UserController
         }
 
         $post_parameters = $this->request->getPostParameters();
-        $this->validateUserId($post_parameters);
+        if (!$this->validateUserId($post_parameters)) {
+            return;
+        }
 
         try {
             $user_entity = $this->getUserEntity($post_parameters);
+            if (!$user_entity) {
+                return;
+            }
+
             $user_id = (int) $this->request->getParameter('user_id');
             $result = $this->user->update($user_id, $user_entity);
             if (empty($result)) {
@@ -162,9 +160,7 @@ class UserController
     }
 
     /**
-     * Delete a specific user by id.
      * @return void
-     * @throws HttpResponseException
      */
     public function delete(): void
     {
@@ -177,7 +173,9 @@ class UserController
         }
 
         $post_parameters = $this->request->getPostParameters();
-        $this->validateUserId($post_parameters);
+        if (!$this->validateUserId($post_parameters)) {
+            return;
+        }
 
         try {
             $user_id = (int) $this->request->getParameter('user_id');
@@ -198,10 +196,8 @@ class UserController
     }
 
     /**
-     * Verify if user id is valid.
      * @param array $request_parameters
      * @return bool
-     * @throws HttpResponseException
      */
     private function validateUserId(array $request_parameters): bool
     {
@@ -220,21 +216,13 @@ class UserController
 
     /**
      * @param array $post_parameters
-     * @return null|UserEntity
-     * @throws HttpResponseException
+     * @return UserEntity|null
      */
     private function getUserEntity(array $post_parameters): ?UserEntity
     {
-        $user_entity = new UserEntity();
-        $user_entity->setEmail($post_parameters['email'] ?? '');
-        $user_entity->setPassword($post_parameters['password'] ?? '');
-        $user_entity->setAge($post_parameters['age'] ?? 0);
-        $user_entity->setGender($post_parameters['gender'] ?? '');
-        $user_entity->setPhone($post_parameters['phone'] ?? '');
-        $user_entity->setCreatedAt($post_parameters['created_at'] ?? '');
-        $user_entity->setUpdatedAt($post_parameters['updated_at'] ?? '');
-
+        $user_entity = (new UserEntity())->populateFromArray($post_parameters);
         $validation_errors = $user_entity->validate();
+
         if (count($validation_errors)) {
             $this->response->sendResponse(
                 Response::CLIENT_ERROR_STATUS_CODE,

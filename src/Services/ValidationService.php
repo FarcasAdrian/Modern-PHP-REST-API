@@ -6,6 +6,11 @@ use DateTime;
 
 class ValidationService
 {
+    public function isNotEmptyString(?string $string): bool
+    {
+        return !empty($string);
+    }
+
     public function isEmail(?string $email): bool
     {
         if (empty($email)) {
@@ -31,7 +36,7 @@ class ValidationService
             return false;
         }
 
-        return strlen($phone_number) > 10;
+        return strlen($phone_number) >= 10;
     }
 
     public function isDate(?string $date, string $format): bool

@@ -4,11 +4,12 @@ namespace Classes\User;
 
 use Classes\Db\Database;
 use Exception;
+use http\Exception\InvalidArgumentException;
 
 class User
 {
     private ?Database $database;
-    private const string TABLE = 'user';
+    private const TABLE = 'user';
 
     public function __construct(Database $database)
     {
@@ -63,6 +64,12 @@ class User
         $this->validateId($id);
 
         $data = $user->toArray();
+        unset($data['id']);
+
+        if (empty($data)) {
+            throw new InvalidArgumentException('Update data cannot be empty.');
+        }
+
         $set_clause = implode(' = ?, ', array_keys($data)) . ' = ?';
         $query = 'UPDATE ' . self::TABLE . ' SET ' . $set_clause . ' WHERE id = ?';
 
@@ -100,6 +107,30 @@ class User
         $statement = $this->database->executeQuery($query);
 
         return $this->database->getAll($statement);
+    }
+
+    /**
+     * @param array $data
+     * @return array
+     * @throws Exception
+     */
+    public function findBy(array $data): array
+    {
+        if (empty($data)) {
+            throw new InvalidArgumentException('Search criteria cannot be empty.');
+        }
+
+        $conditions = [];
+        foreach ($data as $column => $value) {
+            $conditions[] = "$column = ?";
+        }
+
+        $placeholders = implode(' AND ', $conditions);
+        $types = $this->getTypes($data);
+        $query = 'SELECT * FROM ' . self::TABLE . ' WHERE ' . $placeholders;
+        $statement = $this->database->executeQuery($query, $types, ...array_values($data));
+
+        return $this->database->getRow($statement);
     }
 
     /**
