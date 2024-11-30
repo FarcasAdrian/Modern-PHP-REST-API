@@ -14,11 +14,11 @@
     "ext-json": "*",
     "ext-http": "*",
     "firebase/php-jwt": "*",
-    "vlucas/phpdotenv": "*"
+    "vlucas/phpdotenv": "*",
+    "predis/predis": "*"
   },
   "autoload": {
     "psr-4": {
-      "Configurations\\": "src/Configurations/",
       "Classes\\": "src/Classes/",
       "Controllers\\": "src/Controllers/",
       "Services\\": "src/Services/"

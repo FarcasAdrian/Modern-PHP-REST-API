@@ -3,7 +3,7 @@
         'name' => 'adrian/rest-api',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '1184a32f0bff3b22835a003f2f7279f7150a78e3',
+        'reference' => 'b76930501fd77f33426a85b282f08e22cc3aa1bf',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'adrian/rest-api' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '1184a32f0bff3b22835a003f2f7279f7150a78e3',
+            'reference' => 'b76930501fd77f33426a85b282f08e22cc3aa1bf',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -48,6 +48,15 @@
             'aliases' => array(
                 0 => '1.9.x-dev',
             ),
+            'dev_requirement' => false,
+        ),
+        'predis/predis' => array(
+            'pretty_version' => 'v3.0.0-alpha1',
+            'version' => '3.0.0.0-alpha1',
+            'reference' => 'cf28b2a9975e9310a3192f0b72d7f1060b280db5',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../predis/predis',
+            'aliases' => array(),
             'dev_requirement' => false,
         ),
         'symfony/polyfill-ctype' => array(

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Classes\Db;
 
-use Configurations\DatabaseConfig;
 use Exception;
 use mysqli;
 use mysqli_sql_exception;
@@ -41,7 +40,7 @@ class DatabaseMySQLi
     private static function connect(): void
     {
         try {
-            self::$instance = new mysqli(DatabaseConfig::HOSTNAME, DatabaseConfig::USERNAME, DatabaseConfig::PASSWORD, DatabaseConfig::DATABASE, DatabaseConfig::PORT, DatabaseConfig::SOCKET);
+            self::$instance = new mysqli($_ENV['DB_HOSTNAME'], $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD'], $_ENV['DB_DATABASE'], (int) $_ENV['DB_PORT'], $_ENV['DB_SOCKET']);
 
             if (self::$instance->connect_error) {
                 throw new mysqli_sql_exception("Connection failed: " . self::$instance->connect_error);
