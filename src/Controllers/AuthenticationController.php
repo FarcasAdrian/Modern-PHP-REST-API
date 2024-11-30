@@ -2,6 +2,7 @@
 
 namespace Controllers;
 
+use Classes\RedisHandler;
 use Classes\Request;
 use Classes\Response;
 use Services\AuthenticationService;
@@ -12,12 +13,18 @@ class AuthenticationController
     private AuthenticationService $authentication_service;
     private Response $response;
     private Request $request;
+    private RedisHandler $redis_handler;
 
-    public function __construct(AuthenticationService $authentication_service, Response $response, Request $request)
-    {
+    public function __construct(
+        AuthenticationService $authentication_service,
+        Response $response,
+        Request $request,
+        RedisHandler $redis_handler
+    ) {
         $this->authentication_service = $authentication_service;
         $this->response = $response;
         $this->request = $request;
+        $this->redis_handler = $redis_handler;
     }
 
     /**
@@ -65,6 +72,18 @@ class AuthenticationController
             return;
         }
 
-        $this->response->sendResponse(Response::SUCCESS_STATUS_CODE, 'Logout successful.');
+        $token = $this->request->getHeader('Authorization');
+
+        if (empty($token)) {
+            $this->response->sendResponse(Response::CLIENT_ERROR_STATUS_CODE, 'Token is required.');
+            return;
+        }
+
+        try {
+            $this->redis_handler->set($token, 'invalid', (int) $_ENV['AUTHENTICATION_EXPIRATION_TIME']);
+            $this->response->sendResponse(Response::SUCCESS_STATUS_CODE, 'Logout successful.');
+        } catch (Exception $exception) {
+            $this->response->sendResponse(Response::INTERNAL_SERVER_ERROR_STATUS_CODE, 'Logout failed.');
+        }
     }
 }

@@ -21,9 +21,9 @@ class RedisHandler
         ]);
     }
 
-    public function set(string $key, mixed $value): void
+    public function set(string $key, mixed $value, int $expire_time): void
     {
-        $this->client->set($key, $value);
+        $this->client->set($key, $value, $expire_time);
     }
 
     public function get(string $key): ?string
