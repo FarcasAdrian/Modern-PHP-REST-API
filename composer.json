@@ -14,13 +14,15 @@
     "ext-json": "*",
     "ext-http": "*",
     "firebase/php-jwt": "*",
-    "predis/predis": "*"
+    "predis/predis": "*",
+    "phpunit/phpunit": "11.4.4"
   },
   "autoload": {
     "psr-4": {
       "Classes\\": "src/Classes/",
       "Controllers\\": "src/Controllers/",
-      "Services\\": "src/Services/"
+      "Services\\": "src/Services/",
+      "Tests\\": "src/Tests/"
     }
   },
   "scripts": {
