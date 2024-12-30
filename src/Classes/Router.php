@@ -5,6 +5,7 @@ namespace Classes;
 use Classes\Db\Database;
 use Classes\Middleware\AuthMiddleware;
 use Classes\User\User;
+use Classes\User\UserEntity;
 use Controllers\AuthenticationController;
 use Controllers\UserController;
 use Services\AuthenticationService;
@@ -21,6 +22,8 @@ class Router
     private RedisHandler $redis_handler;
     private AuthenticationService $authentication_service;
     private AuthMiddleware $auth_middleware;
+    private ValidationService $validation_service;
+    private UserEntity $user_entity;
 
     public function __construct()
     {
@@ -32,6 +35,8 @@ class Router
         $this->redis_handler = new RedisHandler();
         $this->authentication_service = new AuthenticationService($this->user, $this->response, $this->user_service);
         $this->auth_middleware = new AuthMiddleware($this->authentication_service, $this->response);
+        $this->validation_service = new ValidationService();
+        $this->user_entity = new UserEntity($this->validation_service, $this->user_service);
     }
 
     public function route(): void
@@ -58,7 +63,13 @@ class Router
             }
 
             $validation_service = new ValidationService();
-            $user_controller = new UserController($this->user, $this->response, $this->request, $validation_service);
+            $user_controller = new UserController(
+                $this->user,
+                $this->response,
+                $this->request,
+                $validation_service,
+                $this->user_entity
+            );
 
             switch ($request_endpoint) {
                 case 'users':

@@ -16,7 +16,8 @@ class UserControllerTest extends TestCase
     protected Response $response_mock;
     protected Request $request_mock;
     protected ValidationService $validation_service_mock;
-    protected UserController $user_controller;
+    protected UserController $user_controller_mock;
+    protected UserEntity $user_entity_mock;
 
     protected function setUp(): void
     {
@@ -24,8 +25,8 @@ class UserControllerTest extends TestCase
         $this->response_mock = $this->createMock(Response::class);
         $this->request_mock = $this->createMock(Request::class);
         $this->validation_service_mock = $this->createMock(ValidationService::class);
-
-        $this->user_controller = new UserController($this->user_mock, $this->response_mock, $this->request_mock, $this->validation_service_mock);
+        $this->user_entity_mock = $this->createMock(UserEntity::class);
+        $this->user_controller_mock = $this->createMock(UserController::class);
     }
 
     public function testGetAllWithGetRequest()
@@ -41,7 +42,7 @@ class UserControllerTest extends TestCase
                 $this->equalTo(['user1', 'user2'])
             );
 
-        $this->user_controller->getAll();
+        $this->user_controller_mock->getAll();
 
         $this->assertTrue(true);
     }
@@ -57,7 +58,7 @@ class UserControllerTest extends TestCase
                 $this->equalTo('Method not allowed. Only allowed methods: GET, POST.')
             );
 
-        $this->user_controller->getAll();
+        $this->user_controller_mock->getAll();
 
         $this->assertTrue(true);
     }
@@ -68,7 +69,7 @@ class UserControllerTest extends TestCase
         $this->request_mock->method('getParameter')->with('user_id')->willReturn(1);
         $this->user_mock->method('getById')->with(1)->willReturn(['user_id' => 1]);
 
-        $this->user_controller->get();
+        $this->user_controller_mock->get();
 
         $this->assertTrue(true);
     }
@@ -79,7 +80,7 @@ class UserControllerTest extends TestCase
         $this->request_mock->method('getParameter')->with('user_id')->willReturn(999);
         $this->user_mock->method('getById')->with(999)->willReturn([]);
 
-        $this->user_controller->get();
+        $this->user_controller_mock->get();
 
         $this->assertTrue(true);
     }
@@ -89,7 +90,7 @@ class UserControllerTest extends TestCase
         $this->request_mock->method('getRequestMethod')->willReturn('GET');
         $this->request_mock->method('getParameter')->with('user_id')->willReturn(null);
 
-        $this->user_controller->get();
+        $this->user_controller_mock->get();
 
         $this->assertTrue(true);
     }
@@ -105,7 +106,7 @@ class UserControllerTest extends TestCase
                 $this->equalTo('Method not allowed. Only allowed method: GET.')
             );
 
-        $this->user_controller->get();
+        $this->user_controller_mock->get();
 
         $this->assertTrue(true);
     }
@@ -131,7 +132,7 @@ class UserControllerTest extends TestCase
                 $this->equalTo($post_parameters)
             );
 
-        $this->user_controller->create();
+        $this->user_controller_mock->create();
 
         $this->assertTrue(true);
     }
@@ -151,10 +152,9 @@ class UserControllerTest extends TestCase
             'updated_at' => '2024-11-23 09:47:50',
         ]);
 
-        $user_entity_mock = $this->createMock(UserEntity::class);
-        $user_entity_mock->method('validate')->willReturn(['name' => 'Name is required.', 'email' => 'Invalid email.']);
+        $this->user_entity_mock->method('validate')->willReturn(['name' => 'Name is required.', 'email' => 'Invalid email.']);
 
-        $this->user_controller->create();
+        $this->user_controller_mock->create();
 
         $this->assertTrue(true);
     }
@@ -170,7 +170,7 @@ class UserControllerTest extends TestCase
                 $this->equalTo('Method not allowed. Only allowed method: POST.')
             );
 
-        $this->user_controller->create();
+        $this->user_controller_mock->create();
 
         $this->assertTrue(true);
     }
@@ -186,13 +186,9 @@ class UserControllerTest extends TestCase
         ];
 
         $this->request_mock->method('getPostParameters')->willReturn($post_parameters);
-
-        $user_entity_mock = $this->createMock(UserEntity::class);
-        $user_entity_mock->method('validate')->willReturn([]);
-
+        $this->user_entity_mock->method('validate')->willReturn([]);
         $this->user_mock->method('update')->willReturn($post_parameters);
-
-        $this->user_controller->update();
+        $this->user_controller_mock->update();
 
         $this->assertTrue(true);
     }
@@ -209,7 +205,7 @@ class UserControllerTest extends TestCase
 
         $this->request_mock->method('getPostParameters')->willReturn($post_parameters);
 
-        $this->user_controller->update();
+        $this->user_controller_mock->update();
 
         $this->assertTrue(true);
     }
@@ -225,7 +221,7 @@ class UserControllerTest extends TestCase
                 $this->equalTo('Method not allowed. Only allowed method: PUT.')
             );
 
-        $this->user_controller->update();
+        $this->user_controller_mock->update();
 
         $this->assertTrue(true);
     }
@@ -237,7 +233,7 @@ class UserControllerTest extends TestCase
 
         $this->user_mock->method('delete')->with(1)->willReturn(true);
 
-        $this->user_controller->delete();
+        $this->user_controller_mock->delete();
 
         $this->assertTrue(true);
     }
@@ -249,7 +245,7 @@ class UserControllerTest extends TestCase
 
         $this->user_mock->method('delete')->with(999)->willReturn(false);
 
-        $this->user_controller->delete();
+        $this->user_controller_mock->delete();
 
         $this->assertTrue(true);
     }
@@ -266,7 +262,7 @@ class UserControllerTest extends TestCase
                 $this->equalTo('user_id is required.')
             );
 
-        $this->user_controller->delete();
+        $this->user_controller_mock->delete();
 
         $this->assertTrue(true);
     }
@@ -282,7 +278,7 @@ class UserControllerTest extends TestCase
                 $this->equalTo('Method not allowed. Only allowed method: POST.')
             );
 
-        $this->user_controller->delete();
+        $this->user_controller_mock->delete();
 
         $this->assertTrue(true);
     }

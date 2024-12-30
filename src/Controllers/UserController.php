@@ -15,13 +15,20 @@ class UserController
     private Response $response;
     private Request $request;
     private ValidationService $validation_service;
+    private UserEntity $user_entity;
 
-    public function __construct(User $user, Response $response, Request $request, ValidationService $validation_service)
-    {
+    public function __construct(
+        User $user,
+        Response $response,
+        Request $request,
+        ValidationService $validation_service,
+        UserEntity $user_entity
+    ) {
         $this->user = $user;
         $this->response = $response;
         $this->request = $request;
         $this->validation_service = $validation_service;
+        $this->user_entity = $user_entity;
     }
 
     /**
@@ -220,7 +227,7 @@ class UserController
      */
     private function getUserEntity(array $post_parameters): ?UserEntity
     {
-        $user_entity = (new UserEntity())->populateFromArray($post_parameters);
+        $user_entity = $this->user_entity->populateFromArray($post_parameters);
         $validation_errors = $user_entity->validate();
 
         if (count($validation_errors)) {
