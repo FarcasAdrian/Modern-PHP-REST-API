@@ -24,6 +24,8 @@ class Router
     private AuthMiddleware $auth_middleware;
     private ValidationService $validation_service;
     private UserEntity $user_entity;
+    private UserController $user_controller;
+    private AuthenticationController $authentication_controller;
 
     public function __construct()
     {
@@ -37,6 +39,19 @@ class Router
         $this->auth_middleware = new AuthMiddleware($this->authentication_service, $this->response);
         $this->validation_service = new ValidationService();
         $this->user_entity = new UserEntity($this->validation_service, $this->user_service);
+        $this->user_controller = new UserController(
+            $this->user,
+            $this->response,
+            $this->request,
+            $this->validation_service,
+            $this->user_entity
+        );
+        $this->authentication_controller = new AuthenticationController(
+            $this->authentication_service,
+            $this->response,
+            $this->request,
+            $this->redis_handler
+        );
     }
 
     public function route(): void
@@ -44,48 +59,31 @@ class Router
         $request_endpoint = $this->request->getRequestEndpoint();
 
         if (in_array($request_endpoint, ['user/login', 'user/logout'])) {
-            $authentication_controller = new AuthenticationController(
-                $this->authentication_service,
-                $this->response,
-                $this->request,
-                $this->redis_handler
-            );
-
             if ($request_endpoint === 'user/login') {
-                $authentication_controller->login();
+                $this->authentication_controller->login();
             } else {
-                $authentication_controller->logout();
+                $this->authentication_controller->logout();
             }
-
         } else if (in_array($request_endpoint, ['users', 'user', 'user/create', 'user/update', 'user/delete'])) {
             if ($request_endpoint !== 'user/create' && !$this->auth_middleware->handle($this->request)) {
                 return;
             }
 
-            $validation_service = new ValidationService();
-            $user_controller = new UserController(
-                $this->user,
-                $this->response,
-                $this->request,
-                $validation_service,
-                $this->user_entity
-            );
-
             switch ($request_endpoint) {
                 case 'users':
-                    $user_controller->getAll();
+                    $this->user_controller->getAll();
                     break;
                 case 'user':
-                    $user_controller->get();
+                    $this->user_controller->get();
                     break;
                 case 'user/create':
-                    $user_controller->create();
+                    $this->user_controller->create();
                     break;
                 case 'user/update':
-                    $user_controller->update();
+                    $this->user_controller->update();
                     break;
                 case 'user/delete':
-                    $user_controller->delete();
+                    $this->user_controller->delete();
                     break;
                 default:
                     $this->response->sendResponse(Response::NOT_FOUND_STATUS_CODE, 'Route not found.');
