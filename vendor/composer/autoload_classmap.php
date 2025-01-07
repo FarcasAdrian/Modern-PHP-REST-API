@@ -1101,6 +1101,7 @@ return array(
     'SebastianBergmann\\Comparator\\ExceptionComparator' => $vendorDir . '/sebastian/comparator/src/ExceptionComparator.php',
     'SebastianBergmann\\Comparator\\Factory' => $vendorDir . '/sebastian/comparator/src/Factory.php',
     'SebastianBergmann\\Comparator\\MockObjectComparator' => $vendorDir . '/sebastian/comparator/src/MockObjectComparator.php',
+    'SebastianBergmann\\Comparator\\NumberComparator' => $vendorDir . '/sebastian/comparator/src/NumberComparator.php',
     'SebastianBergmann\\Comparator\\NumericComparator' => $vendorDir . '/sebastian/comparator/src/NumericComparator.php',
     'SebastianBergmann\\Comparator\\ObjectComparator' => $vendorDir . '/sebastian/comparator/src/ObjectComparator.php',
     'SebastianBergmann\\Comparator\\ResourceComparator' => $vendorDir . '/sebastian/comparator/src/ResourceComparator.php',

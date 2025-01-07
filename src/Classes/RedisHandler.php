@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Classes;
 
 use Predis\Client;
@@ -36,7 +38,7 @@ class RedisHandler
         return $this->client->del([$key]);
     }
 
-    public function exists(string $key): bool
+    public function exists(string $key): int
     {
         return $this->client->exists($key);
     }

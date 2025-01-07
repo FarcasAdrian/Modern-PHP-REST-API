@@ -1,40 +1,40 @@
 {
-  "name": "adrian/rest-api",
-  "description": "Modern implementation of REST API",
-  "minimum-stability": "dev",
-  "license": "proprietary",
-  "authors": [
-    {
-      "name": "Adrian Faras",
-      "email": "farcasadrian94@gmail.com"
-    }
-  ],
-  "require": {
-    "ext-mysqli": "*",
-    "ext-json": "*",
-    "ext-http": "*",
-    "firebase/php-jwt": "*",
-    "predis/predis": "*",
-    "phpunit/phpunit": "11.4.4"
-  },
-  "autoload": {
-    "psr-4": {
-      "Classes\\": "src/Classes/",
-      "Controllers\\": "src/Controllers/",
-      "Services\\": "src/Services/",
-      "Tests\\": "src/Tests/"
-    }
-  },
-  "scripts": {
-    "post-update-cmd": [
-      "@auto-scripts",
-      "composer dump-autoload"
-    ],
-    "post-autoload-dump": [
-      "composer dump-autoload"
-    ],
-    "auto-scripts": [
-      "composer dump-autoload"
-    ]
-  }
+	"name": "adrian/rest-api",
+	"description": "Modern implementation of REST API",
+	"minimum-stability": "dev",
+	"license": "proprietary",
+	"authors": [
+		{
+			"name": "Adrian Faras",
+			"email": "farcasadrian94@gmail.com"
+		}
+	],
+	"require": {
+		"ext-mysqli": "*",
+		"ext-json": "*",
+		"ext-http": "*",
+		"firebase/php-jwt": "*",
+		"predis/predis": "*",
+		"phpunit/phpunit": "11.4.4"
+	},
+	"autoload": {
+		"psr-4": {
+			"Classes\\": "src/Classes/",
+			"Controllers\\": "src/Controllers/",
+			"Services\\": "src/Services/",
+			"Tests\\": "src/Tests/"
+		}
+	},
+	"scripts": {
+		"post-update-cmd": [
+			"@auto-scripts",
+			"composer dump-autoload"
+		],
+		"post-autoload-dump": [
+			"composer dump-autoload"
+		],
+		"auto-scripts": [
+			"composer dump-autoload"
+		]
+	}
 }

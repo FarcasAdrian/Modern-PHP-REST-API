@@ -35,9 +35,11 @@ use function strtr;
 use function var_export;
 use BackedEnum;
 use Google\Protobuf\Internal\Message;
+use ReflectionClass;
 use ReflectionObject;
 use SebastianBergmann\RecursionContext\Context as RecursionContext;
 use SplObjectStorage;
+use stdClass;
 use UnitEnum;
 
 final readonly class Exporter
@@ -48,11 +50,18 @@ final readonly class Exporter
     private int $shortenArraysLongerThan;
 
     /**
-     * @param non-negative-int $shortenArraysLongerThan
+     * @var positive-int
      */
-    public function __construct(int $shortenArraysLongerThan = 0)
+    private int $maxLengthForStrings;
+
+    /**
+     * @param non-negative-int $shortenArraysLongerThan
+     * @param positive-int     $maxLengthForStrings
+     */
+    public function __construct(int $shortenArraysLongerThan = 0, int $maxLengthForStrings = 40)
     {
         $this->shortenArraysLongerThan = $shortenArraysLongerThan;
+        $this->maxLengthForStrings     = $maxLengthForStrings;
     }
 
     /**
@@ -79,6 +88,10 @@ final readonly class Exporter
      */
     public function shortenedRecursiveExport(array &$data, int $maxLengthForStrings = 40, ?RecursionContext $processed = null): string
     {
+        if ($maxLengthForStrings === 40) {
+            $maxLengthForStrings = $this->maxLengthForStrings;
+        }
+
         if (!$processed) {
             $processed = new RecursionContext;
         }
@@ -109,6 +122,10 @@ final readonly class Exporter
      */
     public function shortenedExport(mixed $value, int $maxLengthForStrings = 40): string
     {
+        if ($maxLengthForStrings === 40) {
+            $maxLengthForStrings = $this->maxLengthForStrings;
+        }
+
         if (is_string($value)) {
             $string = str_replace("\n", '', $this->exportString($value));
 
@@ -211,15 +228,18 @@ final readonly class Exporter
 
     public function countProperties(object $value): int
     {
-        if ($this->canBeReflected($value)) {
-            $numberOfProperties = count((new ReflectionObject($value))->getProperties());
-        } else {
+        if (!$this->canBeReflected($value)) {
             // @codeCoverageIgnoreStart
-            $numberOfProperties = count($this->toArray($value));
+            return count($this->toArray($value));
             // @codeCoverageIgnoreEnd
         }
 
-        return $numberOfProperties;
+        if (!$value instanceof stdClass) {
+            // using ReflectionClass prevents initialization of potential lazy objects
+            return count((new ReflectionClass($value))->getProperties());
+        }
+
+        return count((new ReflectionObject($value))->getProperties());
     }
 
     /**
