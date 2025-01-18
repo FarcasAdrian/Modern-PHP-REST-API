@@ -9,25 +9,16 @@ use Classes\Request;
 use Classes\Response;
 use Services\AuthenticationService;
 use Exception;
+use Enums\HttpStatusCodeEnum;
 
 class AuthenticationController
 {
-    private AuthenticationService $authentication_service;
-    private Response $response;
-    private Request $request;
-    private RedisHandler $redis_handler;
-
     public function __construct(
-        AuthenticationService $authentication_service,
-        Response $response,
-        Request $request,
-        RedisHandler $redis_handler
-    ) {
-        $this->authentication_service = $authentication_service;
-        $this->response = $response;
-        $this->request = $request;
-        $this->redis_handler = $redis_handler;
-    }
+        private AuthenticationService $authentication_service,
+        private Response $response,
+        private Request $request,
+        private RedisHandler $redisHandler
+    ) {}
 
     /**
      * @return void
@@ -36,7 +27,7 @@ class AuthenticationController
     {
         if ($this->request->getRequestMethod() !== 'POST') {
             $this->response->sendResponse(
-                Response::METHOD_NOT_ALLOWED_STATUS_CODE,
+                HttpStatusCodeEnum::METHOD_NOT_ALLOWED_STATUS_CODE->value,
                 'Method not allowed. Only allowed method: POST.'
             );
             return;
@@ -46,7 +37,7 @@ class AuthenticationController
         $password = $this->request->getParameter('password');
 
         if (empty($email) || empty($password)) {
-            $this->response->sendResponse(Response::CLIENT_ERROR_STATUS_CODE, 'Invalid credentials.');
+            $this->response->sendResponse(HttpStatusCodeEnum::CLIENT_ERROR_STATUS_CODE->value, 'Invalid credentials.');
             return;
         }
 
@@ -58,9 +49,9 @@ class AuthenticationController
             }
 
             $data = ['token' => $jw_token];
-            $this->response->sendResponse(Response::SUCCESS_STATUS_CODE, 'Login successful.', $data);
+            $this->response->sendResponse(HttpStatusCodeEnum::SUCCESS_STATUS_CODE->value, 'Login successful.', $data);
         } catch (Exception $exception) {
-            $this->response->sendResponse(Response::UNAUTHORIZED_STATUS_CODE, $exception->getMessage());
+            $this->response->sendResponse(HttpStatusCodeEnum::UNAUTHORIZED_STATUS_CODE->value, $exception->getMessage());
         }
     }
 
@@ -68,7 +59,7 @@ class AuthenticationController
     {
         if ($this->request->getRequestMethod() !== 'POST') {
             $this->response->sendResponse(
-                Response::METHOD_NOT_ALLOWED_STATUS_CODE,
+                HttpStatusCodeEnum::METHOD_NOT_ALLOWED_STATUS_CODE->value,
                 'Method not allowed. Only allowed method: POST.'
             );
             return;
@@ -77,15 +68,15 @@ class AuthenticationController
         $token = $this->request->getHeader('Authorization');
 
         if (empty($token)) {
-            $this->response->sendResponse(Response::CLIENT_ERROR_STATUS_CODE, 'Token is required.');
+            $this->response->sendResponse(HttpStatusCodeEnum::CLIENT_ERROR_STATUS_CODE->value, 'Token is required.');
             return;
         }
 
         try {
-            $this->redis_handler->set($token, 'invalid', (int) $_ENV['AUTHENTICATION_EXPIRATION_TIME']);
-            $this->response->sendResponse(Response::SUCCESS_STATUS_CODE, 'Logout successful.');
-        } catch (Exception $exception) {
-            $this->response->sendResponse(Response::INTERNAL_SERVER_ERROR_STATUS_CODE, 'Logout failed.');
+            $this->redisHandler->set($token, 'invalid', (int) $_ENV['AUTHENTICATION_EXPIRATION_TIME']);
+            $this->response->sendResponse(HttpStatusCodeEnum::SUCCESS_STATUS_CODE->value, 'Logout successful.');
+        } catch (Exception) {
+            $this->response->sendResponse(HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value, 'Logout failed.');
         }
     }
 }

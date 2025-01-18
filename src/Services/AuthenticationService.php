@@ -10,19 +10,11 @@ use Firebase\JWT\JWT;
 use Exception;
 use Firebase\JWT\Key;
 use stdClass;
+use Enums\HttpStatusCodeEnum;
 
 class AuthenticationService
 {
-    private User $user;
-    private Response $response;
-    private UserService $user_service;
-
-    public function __construct(User $user, Response $response, UserService $user_service)
-    {
-        $this->user = $user;
-        $this->response = $response;
-        $this->user_service = $user_service;
-    }
+    public function __construct(private User $user, private Response $response, private UserService $user_service) {}
 
     /**
      * @param string $user_email
@@ -36,12 +28,12 @@ class AuthenticationService
             $user_data = $this->user->findBy($data);
 
             if (empty($user_data) || !$this->user_service->verifyPassword($user_password, $user_data['password'])) {
-                $this->response->sendResponse(Response::UNAUTHORIZED_STATUS_CODE, 'Authentication failed.');
+                $this->response->sendResponse(HttpStatusCodeEnum::UNAUTHORIZED_STATUS_CODE->value, 'Authentication failed.');
                 return null;
             }
         } catch (Exception $exception) {
             $this->response->sendResponse(
-                Response::UNAUTHORIZED_STATUS_CODE,
+                HttpStatusCodeEnum::UNAUTHORIZED_STATUS_CODE->value,
                 'Something went wrong during authentication: ' . $exception->getMessage()
             );
             return null;
@@ -63,7 +55,7 @@ class AuthenticationService
             return JWT::encode($payload, $_ENV['JWT_SECRET_KEY'], 'HS256');
         } catch (Exception $exception) {
             $this->response->sendResponse(
-                Response::INTERNAL_SERVER_ERROR_STATUS_CODE,
+                HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value,
                 'JWT encoding failed: ' . $exception->getMessage()
             );
             return null;
@@ -80,7 +72,7 @@ class AuthenticationService
             return JWT::decode($jwt, new Key($_ENV['JWT_SECRET_KEY'], 'HS256'));
         } catch (Exception $exception) {
             $this->response->sendResponse(
-                Response::UNAUTHORIZED_STATUS_CODE,
+                HttpStatusCodeEnum::UNAUTHORIZED_STATUS_CODE->value,
                 'Invalid token: ' . $exception->getMessage()
             );
             return null;

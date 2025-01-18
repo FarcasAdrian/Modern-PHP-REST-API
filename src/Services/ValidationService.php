@@ -63,10 +63,6 @@ class ValidationService
 
     public function isGender(?string $gender): bool
     {
-        if (empty($gender)) {
-            return false;
-        }
-
-        return true;
+        return !empty($gender);
     }
 }

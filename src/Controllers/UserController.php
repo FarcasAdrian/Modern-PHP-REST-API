@@ -10,28 +10,17 @@ use Classes\User\User;
 use Classes\User\UserEntity;
 use Exception;
 use Services\ValidationService;
+use Enums\HttpStatusCodeEnum;
 
 class UserController
 {
-    private User $user;
-    private Response $response;
-    private Request $request;
-    private ValidationService $validation_service;
-    private UserEntity $user_entity;
-
     public function __construct(
-        User $user,
-        Response $response,
-        Request $request,
-        ValidationService $validation_service,
-        UserEntity $user_entity
-    ) {
-        $this->user = $user;
-        $this->response = $response;
-        $this->request = $request;
-        $this->validation_service = $validation_service;
-        $this->user_entity = $user_entity;
-    }
+        private User $user,
+        private Response $response,
+        private Request $request,
+        private ValidationService $validation_service,
+        private UserEntity $user_entity
+    ) {}
 
     /**
      * @return void
@@ -41,7 +30,7 @@ class UserController
         $request_method = $this->request->getRequestMethod();
         if ($request_method !== 'GET' && $request_method !== 'POST') {
             $this->response->sendResponse(
-                Response::METHOD_NOT_ALLOWED_STATUS_CODE,
+                HttpStatusCodeEnum::METHOD_NOT_ALLOWED_STATUS_CODE->value,
                 'Method not allowed. Only allowed methods: GET, POST.'
             );
             return;
@@ -50,12 +39,12 @@ class UserController
         try {
             $users = $this->user->getAll();
             $this->response->sendResponse(
-                Response::SUCCESS_STATUS_CODE,
+                HttpStatusCodeEnum::SUCCESS_STATUS_CODE->value,
                 'Users retrieved successfully.',
                 $users
             );
         } catch (Exception $exception) {
-            $this->response->sendResponse(Response::INTERNAL_SERVER_ERROR_STATUS_CODE, $exception->getMessage());
+            $this->response->sendResponse(HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value, $exception->getMessage());
         }
     }
 
@@ -66,7 +55,7 @@ class UserController
     {
         if ($this->request->getRequestMethod() !== 'GET') {
             $this->response->sendResponse(
-                Response::METHOD_NOT_ALLOWED_STATUS_CODE,
+                HttpStatusCodeEnum::METHOD_NOT_ALLOWED_STATUS_CODE->value,
                 'Method not allowed. Only allowed method: GET.'
             );
             return;
@@ -82,13 +71,13 @@ class UserController
             $user = $this->user->getById($user_id);
 
             if (empty($user)) {
-                $this->response->sendResponse(Response::NOT_FOUND_STATUS_CODE, 'User not found.');
+                $this->response->sendResponse(HttpStatusCodeEnum::NOT_FOUND_STATUS_CODE->value, 'User not found.');
                 return;
             }
 
-            $this->response->sendResponse(Response::SUCCESS_STATUS_CODE, 'User retrieved with success.', $user);
+            $this->response->sendResponse(HttpStatusCodeEnum::SUCCESS_STATUS_CODE->value, 'User retrieved with success.', $user);
         } catch (Exception $exception) {
-            $this->response->sendResponse(Response::INTERNAL_SERVER_ERROR_STATUS_CODE, $exception->getMessage());
+            $this->response->sendResponse(HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value, $exception->getMessage());
         }
     }
 
@@ -99,7 +88,7 @@ class UserController
     {
         if ($this->request->getRequestMethod() !== 'POST') {
             $this->response->sendResponse(
-                Response::METHOD_NOT_ALLOWED_STATUS_CODE,
+                HttpStatusCodeEnum::METHOD_NOT_ALLOWED_STATUS_CODE->value,
                 'Method not allowed. Only allowed method: POST.'
             );
             return;
@@ -116,15 +105,15 @@ class UserController
             $result = $this->user->create($user_entity);
             if (empty($result)) {
                 $this->response->sendResponse(
-                    Response::INTERNAL_SERVER_ERROR_STATUS_CODE,
+                    HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value,
                     'User could not be created.'
                 );
                 return;
             }
 
-            $this->response->sendResponse(Response::SUCCESS_STATUS_CODE, 'User created with success.', $result);
+            $this->response->sendResponse(HttpStatusCodeEnum::SUCCESS_STATUS_CODE->value, 'User created with success.', $result);
         } catch (Exception $exception) {
-            $this->response->sendResponse(Response::INTERNAL_SERVER_ERROR_STATUS_CODE, $exception->getMessage());
+            $this->response->sendResponse(HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value, $exception->getMessage());
         }
     }
 
@@ -135,7 +124,7 @@ class UserController
     {
         if ($this->request->getRequestMethod() !== 'PUT') {
             $this->response->sendResponse(
-                Response::METHOD_NOT_ALLOWED_STATUS_CODE,
+                HttpStatusCodeEnum::METHOD_NOT_ALLOWED_STATUS_CODE->value,
                 'Method not allowed. Only allowed method: PUT.'
             );
             return;
@@ -156,15 +145,15 @@ class UserController
             $result = $this->user->update($user_id, $user_entity);
             if (empty($result)) {
                 $this->response->sendResponse(
-                    Response::INTERNAL_SERVER_ERROR_STATUS_CODE,
+                    HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value,
                     'User could not be updated.'
                 );
                 return;
             }
 
-            $this->response->sendResponse(Response::SUCCESS_STATUS_CODE, 'User updated with success.', $result);
+            $this->response->sendResponse(HttpStatusCodeEnum::SUCCESS_STATUS_CODE->value, 'User updated with success.', $result);
         } catch (Exception $exception) {
-            $this->response->sendResponse(Response::INTERNAL_SERVER_ERROR_STATUS_CODE, $exception->getMessage());
+            $this->response->sendResponse(HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value, $exception->getMessage());
         }
     }
 
@@ -175,7 +164,7 @@ class UserController
     {
         if ($this->request->getRequestMethod() !== 'POST') {
             $this->response->sendResponse(
-                Response::METHOD_NOT_ALLOWED_STATUS_CODE,
+                HttpStatusCodeEnum::METHOD_NOT_ALLOWED_STATUS_CODE->value,
                 'Method not allowed. Only allowed method: POST.'
             );
             return;
@@ -192,15 +181,15 @@ class UserController
 
             if (!$result) {
                 $this->response->sendResponse(
-                    Response::INTERNAL_SERVER_ERROR_STATUS_CODE,
+                    HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value,
                     'User could not be removed.'
                 );
                 return;
             }
 
-            $this->response->sendResponse(Response::SUCCESS_STATUS_CODE, 'User deleted with success.');
+            $this->response->sendResponse(HttpStatusCodeEnum::SUCCESS_STATUS_CODE->value, 'User deleted with success.');
         } catch (Exception $exception) {
-            $this->response->sendResponse(Response::INTERNAL_SERVER_ERROR_STATUS_CODE, $exception->getMessage());
+            $this->response->sendResponse(HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value, $exception->getMessage());
         }
     }
 
@@ -211,12 +200,12 @@ class UserController
     private function validateUserId(array $request_parameters): bool
     {
         if (!isset($request_parameters['user_id'])) {
-            $this->response->sendResponse(Response::CLIENT_ERROR_STATUS_CODE, 'user_id is required.');
+            $this->response->sendResponse(HttpStatusCodeEnum::CLIENT_ERROR_STATUS_CODE->value, 'user_id is required.');
             return false;
         }
 
         if (!$this->validation_service->isPositiveInt((int) $request_parameters['user_id'])) {
-            $this->response->sendResponse(Response::CLIENT_ERROR_STATUS_CODE, 'user_id is invalid.');
+            $this->response->sendResponse(HttpStatusCodeEnum::CLIENT_ERROR_STATUS_CODE->value, 'user_id is invalid.');
             return false;
         }
 
@@ -234,7 +223,7 @@ class UserController
 
         if (count($validation_errors)) {
             $this->response->sendResponse(
-                Response::CLIENT_ERROR_STATUS_CODE,
+                HttpStatusCodeEnum::CLIENT_ERROR_STATUS_CODE->value,
                 'Validation errors.',
                 $validation_errors
             );

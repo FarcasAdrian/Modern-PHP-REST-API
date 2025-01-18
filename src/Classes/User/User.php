@@ -10,13 +10,9 @@ use http\Exception\InvalidArgumentException;
 
 class User
 {
-    private ?Database $database;
     private const TABLE = 'user';
 
-    public function __construct(Database $database)
-    {
-        $this->database = $database;
-    }
+    public function __construct(private Database $database) {}
 
     /**
      * Retrieve an user by id.
@@ -158,13 +154,12 @@ class User
     private function getTypes(array $data): string
     {
         return array_reduce($data, function ($types, $value) {
-            if (is_int($value)) {
-                return $types . 'i';
-            } else if (is_float($value)) {
-                return $types . 'd';
-            } else {
-                return $types . 's';
-            }
+            match ($value) {
+                is_int($value) => $types . 'i',
+                is_float($value) => $types . 'd',
+                default => $types . 's',
+            };
+
         }, '');
     }
 }

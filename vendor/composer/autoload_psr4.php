@@ -11,6 +11,7 @@ return array(
     'Predis\\' => array($vendorDir . '/predis/predis/src'),
     'PhpParser\\' => array($vendorDir . '/nikic/php-parser/lib/PhpParser'),
     'Firebase\\JWT\\' => array($vendorDir . '/firebase/php-jwt/src'),
+    'Enums\\' => array($baseDir . '/src/Enums'),
     'DeepCopy\\' => array($vendorDir . '/myclabs/deep-copy/src/DeepCopy'),
     'Controllers\\' => array($baseDir . '/src/Controllers'),
     'Classes\\' => array($baseDir . '/src/Classes'),

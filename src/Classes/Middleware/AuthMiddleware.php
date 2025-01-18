@@ -8,17 +8,11 @@ use Classes\Request;
 use Classes\Response;
 use Services\AuthenticationService;
 use Exception;
+use Enums\HttpStatusCodeEnum;
 
 class AuthMiddleware
 {
-    private AuthenticationService $authentication_service;
-    private Response $response;
-
-    public function __construct(AuthenticationService $authentication_service, Response $response)
-    {
-        $this->authentication_service = $authentication_service;
-        $this->response = $response;
-    }
+    public function __construct(private AuthenticationService $authentication_service, private Response $response) {}
 
     /**
      * @param Request $request
@@ -30,7 +24,7 @@ class AuthMiddleware
         $matches = '';
 
         if (!$auth_header || !preg_match('/Bearer\s(\S+)/', $auth_header, $matches)) {
-            $this->response->sendResponse(Response::UNAUTHORIZED_STATUS_CODE, 'Not authorized.');
+            $this->response->sendResponse(HttpStatusCodeEnum::UNAUTHORIZED_STATUS_CODE->value, 'Not authorized.');
             exit;
         }
 
@@ -39,7 +33,7 @@ class AuthMiddleware
             return $this->authentication_service->decodeToken($jwt);
         } catch (Exception $exception) {
             $this->response->sendResponse(
-                Response::UNAUTHORIZED_STATUS_CODE,
+                HttpStatusCodeEnum::UNAUTHORIZED_STATUS_CODE->value,
                 'Invalid token: ' . $exception->getMessage()
             );
             exit;

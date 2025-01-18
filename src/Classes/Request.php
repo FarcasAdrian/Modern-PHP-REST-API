@@ -107,11 +107,7 @@ class Request
      */
     public function getHeader(string $key): string
     {
-        if (isset($this->headers[$key])) {
-            return $this->headers[$key];
-        }
-
-        return '';
+        return $this->headers[$key] ?? '';
     }
 
     /**

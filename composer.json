@@ -22,15 +22,13 @@
 			"Classes\\": "src/Classes/",
 			"Controllers\\": "src/Controllers/",
 			"Services\\": "src/Services/",
-			"Tests\\": "src/Tests/"
+			"Tests\\": "src/Tests/",
+			"Enums\\": "src/Enums/"
 		}
 	},
 	"scripts": {
 		"post-update-cmd": [
 			"@auto-scripts",
-			"composer dump-autoload"
-		],
-		"post-autoload-dump": [
 			"composer dump-autoload"
 		],
 		"auto-scripts": [

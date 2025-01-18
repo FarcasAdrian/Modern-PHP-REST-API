@@ -19,15 +19,9 @@ class UserEntity
     private string $phone;
     private string $created_at;
     private string $updated_at;
-    private ValidationService $validation_service;
-    private UserService $user_service;
     public const DATE_FORMAT = 'Y-m-d H:i:s';
 
-    public function __construct(ValidationService $validation_service, UserService $user_service)
-    {
-        $this->validation_service = $validation_service;
-        $this->user_service = $user_service;
-    }
+    public function __construct(private ValidationService $validation_service, private UserService $user_service) {}
 
     public function setId(int $id): void
     {

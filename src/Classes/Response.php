@@ -4,15 +4,10 @@ declare(strict_types=1);
 
 namespace Classes;
 
+use Enums\HttpStatusCodeEnum;
+
 class Response
 {
-    const SUCCESS_STATUS_CODE = 200;
-    const CLIENT_ERROR_STATUS_CODE = 400;
-    const UNAUTHORIZED_STATUS_CODE = 401;
-    const NOT_FOUND_STATUS_CODE = 404;
-    const METHOD_NOT_ALLOWED_STATUS_CODE = 405;
-    const INTERNAL_SERVER_ERROR_STATUS_CODE = 500;
-
     /**
      * @param int $status_code
      * @param string $message
@@ -30,10 +25,10 @@ class Response
         ]);
 
         if ($json === false) {
-            http_response_code(self::INTERNAL_SERVER_ERROR_STATUS_CODE);
+            http_response_code(HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value);
             $json = json_encode([
-               'status_code' => self::INTERNAL_SERVER_ERROR_STATUS_CODE,
-               'success' => $this->responseWithSuccess(self::INTERNAL_SERVER_ERROR_STATUS_CODE),
+               'status_code' => HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value,
+               'success' => $this->responseWithSuccess(HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value),
                 'message' => 'Failed to encode the response.',
             ]);
         }
@@ -47,6 +42,6 @@ class Response
      */
     public function responseWithSuccess(int $status_code): bool
     {
-        return 200 <= $status_code && $status_code <= 299;
+        return HttpStatusCodeEnum::SUCCESS_STATUS_CODE->value <= $status_code && $status_code <= HttpStatusCodeEnum::MISCELLANEOUS_PERSISTENT_WARNING->value;
     }
 }

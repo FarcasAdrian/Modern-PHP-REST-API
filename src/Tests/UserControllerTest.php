@@ -11,6 +11,7 @@ use Classes\User\UserEntity;
 use Controllers\UserController;
 use PHPUnit\Framework\TestCase;
 use Services\ValidationService;
+use Enums\HttpStatusCodeEnum;
 
 class UserControllerTest extends TestCase
 {
@@ -39,7 +40,7 @@ class UserControllerTest extends TestCase
         $this->response_mock->expects($this->once())
             ->method('sendResponse')
             ->with(
-                $this->equalTo(Response::SUCCESS_STATUS_CODE),
+                $this->equalTo(HttpStatusCodeEnum::SUCCESS_STATUS_CODE->value),
                 $this->equalTo('Users retrieved successfully.'),
                 $this->equalTo(['user1', 'user2'])
             );
@@ -56,7 +57,7 @@ class UserControllerTest extends TestCase
         $this->response_mock->expects($this->once())
             ->method('sendResponse')
             ->with(
-                $this->equalTo(Response::METHOD_NOT_ALLOWED_STATUS_CODE),
+                $this->equalTo(HttpStatusCodeEnum::METHOD_NOT_ALLOWED_STATUS_CODE->value),
                 $this->equalTo('Method not allowed. Only allowed methods: GET, POST.')
             );
 
@@ -104,7 +105,7 @@ class UserControllerTest extends TestCase
         $this->response_mock->expects($this->once())
             ->method('sendResponse')
             ->with(
-                $this->equalTo(Response::METHOD_NOT_ALLOWED_STATUS_CODE),
+                $this->equalTo(HttpStatusCodeEnum::METHOD_NOT_ALLOWED_STATUS_CODE->value),
                 $this->equalTo('Method not allowed. Only allowed method: GET.')
             );
 
@@ -168,7 +169,7 @@ class UserControllerTest extends TestCase
         $this->response_mock->expects($this->once())
             ->method('sendResponse')
             ->with(
-                $this->equalTo(Response::METHOD_NOT_ALLOWED_STATUS_CODE),
+                $this->equalTo(HttpStatusCodeEnum::METHOD_NOT_ALLOWED_STATUS_CODE->value),
                 $this->equalTo('Method not allowed. Only allowed method: POST.')
             );
 
@@ -219,7 +220,7 @@ class UserControllerTest extends TestCase
         $this->response_mock->expects($this->once())
             ->method('sendResponse')
             ->with(
-                $this->equalTo(Response::METHOD_NOT_ALLOWED_STATUS_CODE),
+                $this->equalTo(HttpStatusCodeEnum::METHOD_NOT_ALLOWED_STATUS_CODE->value),
                 $this->equalTo('Method not allowed. Only allowed method: PUT.')
             );
 
@@ -260,7 +261,7 @@ class UserControllerTest extends TestCase
         $this->response_mock->expects($this->once())
             ->method('sendResponse')
             ->with(
-                $this->equalTo(Response::CLIENT_ERROR_STATUS_CODE),
+                $this->equalTo(HttpStatusCodeEnum::CLIENT_ERROR_STATUS_CODE->value),
                 $this->equalTo('user_id is required.')
             );
 
@@ -276,7 +277,7 @@ class UserControllerTest extends TestCase
         $this->response_mock->expects($this->once())
             ->method('sendResponse')
             ->with(
-                $this->equalTo(Response::METHOD_NOT_ALLOWED_STATUS_CODE),
+                $this->equalTo(HttpStatusCodeEnum::METHOD_NOT_ALLOWED_STATUS_CODE->value),
                 $this->equalTo('Method not allowed. Only allowed method: POST.')
             );
 
