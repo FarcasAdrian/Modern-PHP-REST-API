@@ -5,16 +5,17 @@ declare(strict_types=1);
 namespace Classes;
 
 use Enums\HttpStatusCodeEnum;
+use Interfaces\ResponseInterface;
 
-class Response
+class Response implements ResponseInterface
 {
     /**
      * @param int $status_code
      * @param string $message
-     * @param array $data
+     * @param array|object $data
      * @return void
      */
-    public function sendResponse(int $status_code, string $message, array $data = []): void
+    public function sendResponse(int $status_code, string $message, array|object $data = []): void
     {
         http_response_code($status_code);
         $json = json_encode([
@@ -27,8 +28,8 @@ class Response
         if ($json === false) {
             http_response_code(HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value);
             $json = json_encode([
-               'status_code' => HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value,
-               'success' => $this->responseWithSuccess(HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value),
+                'status_code' => HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value,
+                'success' => $this->responseWithSuccess(HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value),
                 'message' => 'Failed to encode the response.',
             ]);
         }

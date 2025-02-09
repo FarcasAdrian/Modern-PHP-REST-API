@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 declare(strict_types=1);
 
@@ -6,27 +6,28 @@ namespace Services;
 
 use ReflectionClass;
 use Closure;
+use Interfaces\ServiceContainerInterface;
 
-class ServiceContainer
+class ServiceContainer implements ServiceContainerInterface
 {
-    private array $registry = [];
+    private array $bindings = [];
 
-    public function set(string $name, Closure $value): void
+    public function bind(string $key, Closure $resolver): void
     {
-        $this->registry[$name] = $value;
+        $this->bindings[$key] = $resolver;
     }
 
-    public function get(string $class_name): object
+    public function resolve(string $key): mixed
     {
-        if (array_key_exists($class_name, $this->registry)) {
-            return $this->registry[$class_name]();
+        if (array_key_exists($key, $this->bindings)) {
+            return call_user_func($this->bindings[$key]);
         }
 
-        $reflector = new ReflectionClass($class_name);
+        $reflector = new ReflectionClass($key);
         $constructor = $reflector->getConstructor();
 
         if ($constructor === null) {
-            return new $class_name;
+            return new $key;
         }
 
         $constructor_parameters = $constructor->getParameters();
@@ -34,9 +35,9 @@ class ServiceContainer
 
         foreach ($constructor_parameters as $parameter) {
             $type = (string) $parameter->getType();
-            $dependencies[] = $this->get($type);
+            $dependencies[] = $this->resolve($type);
         }
 
-        return new $class_name(...$dependencies);
+        return $reflector->newInstanceArgs($dependencies);
     }
 }

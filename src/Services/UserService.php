@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Services;
 
-class UserService
+use Interfaces\UserServiceInterface;
+
+class UserService implements UserServiceInterface
 {
     public function createPasswordHash(string $password): string
     {

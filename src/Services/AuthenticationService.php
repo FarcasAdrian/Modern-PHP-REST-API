@@ -4,17 +4,33 @@ declare(strict_types=1);
 
 namespace Services;
 
-use Classes\Response;
-use Classes\User\User;
+use Interfaces\RepositoryInterface;
 use Firebase\JWT\JWT;
 use Exception;
 use Firebase\JWT\Key;
 use stdClass;
 use Enums\HttpStatusCodeEnum;
+use Interfaces\AuthenticationServiceInterface;
+use Interfaces\ResponseInterface;
+use Interfaces\UserServiceInterface;
 
-class AuthenticationService
+class AuthenticationService implements AuthenticationServiceInterface
 {
-    public function __construct(private User $user, private Response $response, private UserService $user_service) {}
+    public function __construct(private RepositoryInterface $userRepository, private ResponseInterface $response, private UserServiceInterface $userService) {}
+
+    public function authenticate(array $matches): ?stdClass
+    {
+        try {
+            $jwt = $matches[1];
+            return $this->decodeToken($jwt);
+        } catch (Exception $exception) {
+            $this->response->sendResponse(
+                HttpStatusCodeEnum::UNAUTHORIZED_STATUS_CODE->value,
+                'Invalid token: ' . $exception->getMessage()
+            );
+            exit;
+        }
+    }
 
     /**
      * @param string $user_email
@@ -25,9 +41,9 @@ class AuthenticationService
     {
         try {
             $data = ['email' => $user_email];
-            $user_data = $this->user->findBy($data);
+            $user_data = $this->userRepository->findBy($data);
 
-            if (empty($user_data) || !$this->user_service->verifyPassword($user_password, $user_data['password'])) {
+            if (empty($user_data) || !$this->userService->verifyPassword($user_password, $user_data['password'])) {
                 $this->response->sendResponse(HttpStatusCodeEnum::UNAUTHORIZED_STATUS_CODE->value, 'Authentication failed.');
                 return null;
             }

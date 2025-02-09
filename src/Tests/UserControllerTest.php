@@ -6,7 +6,7 @@ namespace Tests;
 
 use Classes\Request;
 use Classes\Response;
-use Classes\User\User;
+use Classes\User\UserRepository;
 use Classes\User\UserEntity;
 use Controllers\UserController;
 use PHPUnit\Framework\TestCase;
@@ -24,7 +24,7 @@ class UserControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->user_mock = $this->createMock(User::class);
+        $this->user_mock = $this->createMock(UserRepository::class);
         $this->response_mock = $this->createMock(Response::class);
         $this->request_mock = $this->createMock(Request::class);
         $this->validation_service_mock = $this->createMock(ValidationService::class);

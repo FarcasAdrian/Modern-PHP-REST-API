@@ -5,21 +5,26 @@ declare(strict_types=1);
 namespace Controllers;
 
 use Classes\Request;
-use Classes\Response;
-use Classes\User\User;
+use Interfaces\RepositoryInterface;
 use Classes\User\UserEntity;
 use Exception;
 use Services\ValidationService;
 use Enums\HttpStatusCodeEnum;
+use Interfaces\EntityDTOServiceInterface;
+use Interfaces\EntityInterface;
+use Interfaces\EntityTransformerInterface;
+use Interfaces\ResponseInterface;
 
-class UserController
+class UserController extends Controller
 {
     public function __construct(
-        private User $user,
-        private Response $response,
+        private RepositoryInterface $userRepository,
+        private ResponseInterface $response,
         private Request $request,
-        private ValidationService $validation_service,
-        private UserEntity $user_entity
+        private ValidationService $validationService,
+        private EntityInterface $userEntity,
+        private EntityDTOServiceInterface $userDTOService,
+        private EntityTransformerInterface $entityTransformer
     ) {}
 
     /**
@@ -37,11 +42,12 @@ class UserController
         }
 
         try {
-            $users = $this->user->getAll();
+            $users = $this->userRepository->getAll();
+            $userDTOs = array_map([$this->userDTOService, 'createDTOFromArray'], $users);
             $this->response->sendResponse(
                 HttpStatusCodeEnum::SUCCESS_STATUS_CODE->value,
                 'Users retrieved successfully.',
-                $users
+                $userDTOs
             );
         } catch (Exception $exception) {
             $this->response->sendResponse(HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value, $exception->getMessage());
@@ -61,21 +67,22 @@ class UserController
             return;
         }
 
-        $query_parameters = $this->request->getQueryParameters();
+        $query_parameters = $this->request->getQueryParameter()->getAll();
         if (!$this->validateUserId($query_parameters)) {
             return;
         }
 
         try {
             $user_id = (int) $this->request->getParameter('user_id');
-            $user = $this->user->getById($user_id);
+            $user = $this->userRepository->getById($user_id);
 
             if (empty($user)) {
                 $this->response->sendResponse(HttpStatusCodeEnum::NOT_FOUND_STATUS_CODE->value, 'User not found.');
                 return;
             }
 
-            $this->response->sendResponse(HttpStatusCodeEnum::SUCCESS_STATUS_CODE->value, 'User retrieved with success.', $user);
+            $userDTO = $this->userDTOService->createDTOFromArray($user);
+            $this->response->sendResponse(HttpStatusCodeEnum::SUCCESS_STATUS_CODE->value, 'User retrieved with success.', $userDTO);
         } catch (Exception $exception) {
             $this->response->sendResponse(HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value, $exception->getMessage());
         }
@@ -95,14 +102,14 @@ class UserController
         }
 
         try {
-            $post_parameters = $this->request->getPostParameters();
+            $post_parameters = $this->request->getServerParameter()->getAll();
             $user_entity = $this->getUserEntity($post_parameters);
 
             if (!$user_entity) {
                 return;
             }
 
-            $result = $this->user->create($user_entity);
+            $result = $this->userRepository->create($user_entity);
             if (empty($result)) {
                 $this->response->sendResponse(
                     HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value,
@@ -111,7 +118,8 @@ class UserController
                 return;
             }
 
-            $this->response->sendResponse(HttpStatusCodeEnum::SUCCESS_STATUS_CODE->value, 'User created with success.', $result);
+            $userDTO = $this->userDTOService->createDTOFromArray($result);
+            $this->response->sendResponse(HttpStatusCodeEnum::SUCCESS_STATUS_CODE->value, 'User created with success.', $userDTO);
         } catch (Exception $exception) {
             $this->response->sendResponse(HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value, $exception->getMessage());
         }
@@ -130,7 +138,7 @@ class UserController
             return;
         }
 
-        $post_parameters = $this->request->getPostParameters();
+        $post_parameters = $this->request->getServerParameter()->getAll();
         if (!$this->validateUserId($post_parameters)) {
             return;
         }
@@ -142,7 +150,7 @@ class UserController
             }
 
             $user_id = (int) $this->request->getParameter('user_id');
-            $result = $this->user->update($user_id, $user_entity);
+            $result = $this->userRepository->update($user_id, $user_entity);
             if (empty($result)) {
                 $this->response->sendResponse(
                     HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value,
@@ -151,7 +159,8 @@ class UserController
                 return;
             }
 
-            $this->response->sendResponse(HttpStatusCodeEnum::SUCCESS_STATUS_CODE->value, 'User updated with success.', $result);
+            $userDTO = $this->userDTOService->createDTOFromArray($result);
+            $this->response->sendResponse(HttpStatusCodeEnum::SUCCESS_STATUS_CODE->value, 'User updated with success.', $userDTO);
         } catch (Exception $exception) {
             $this->response->sendResponse(HttpStatusCodeEnum::INTERNAL_SERVER_ERROR_STATUS_CODE->value, $exception->getMessage());
         }
@@ -170,14 +179,14 @@ class UserController
             return;
         }
 
-        $post_parameters = $this->request->getPostParameters();
+        $post_parameters = $this->request->getServerParameter()->getAll();
         if (!$this->validateUserId($post_parameters)) {
             return;
         }
 
         try {
             $user_id = (int) $this->request->getParameter('user_id');
-            $result = $this->user->delete($user_id);
+            $result = $this->userRepository->delete($user_id);
 
             if (!$result) {
                 $this->response->sendResponse(
@@ -204,7 +213,7 @@ class UserController
             return false;
         }
 
-        if (!$this->validation_service->isPositiveInt((int) $request_parameters['user_id'])) {
+        if (!$this->validationService->isPositiveInt((int) $request_parameters['user_id'])) {
             $this->response->sendResponse(HttpStatusCodeEnum::CLIENT_ERROR_STATUS_CODE->value, 'user_id is invalid.');
             return false;
         }
@@ -218,8 +227,8 @@ class UserController
      */
     private function getUserEntity(array $post_parameters): ?UserEntity
     {
-        $user_entity = $this->user_entity->populateFromArray($post_parameters);
-        $validation_errors = $user_entity->validate();
+        $user_entity = $this->entityTransformer->populateFromArray($this->userEntity, $post_parameters);
+        $validation_errors = $this->validationService->validateUser($user_entity);
 
         if (count($validation_errors)) {
             $this->response->sendResponse(

@@ -21,9 +21,16 @@
 		"psr-4": {
 			"Classes\\": "src/Classes/",
 			"Controllers\\": "src/Controllers/",
+			"Enums\\": "src/Enums/",
+			"Factories\\": "src/Factories/",
+			"Handlers\\": "src/Handlers/",
+			"DTO\\": "src/DTO/",
+			"Interfaces\\": "src/Interfaces/",
+			"Middlewares\\": "src/Middlewares",
 			"Services\\": "src/Services/",
 			"Tests\\": "src/Tests/",
-			"Enums\\": "src/Enums/"
+			"Traits\\": "src/Traits/",
+			"Transformers\\": "src/Transformers/"
 		}
 	},
 	"scripts": {

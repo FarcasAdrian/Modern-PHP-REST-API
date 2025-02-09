@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace Controllers;
 
-use Classes\RedisHandler;
 use Classes\Request;
-use Classes\Response;
 use Services\AuthenticationService;
 use Exception;
 use Enums\HttpStatusCodeEnum;
+use Interfaces\RedisHandlerInterface;
+use Interfaces\ResponseInterface;
 
-class AuthenticationController
+class AuthenticationController extends Controller
 {
     public function __construct(
         private AuthenticationService $authentication_service,
-        private Response $response,
+        private ResponseInterface $response,
         private Request $request,
-        private RedisHandler $redisHandler
+        private RedisHandlerInterface $redisHandler
     ) {}
 
     /**
@@ -65,7 +65,7 @@ class AuthenticationController
             return;
         }
 
-        $token = $this->request->getHeader('Authorization');
+        $token = $this->request->getHeader()->get('Authorization');
 
         if (empty($token)) {
             $this->response->sendResponse(HttpStatusCodeEnum::CLIENT_ERROR_STATUS_CODE->value, 'Token is required.');

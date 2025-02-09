@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Services;
 
+use Classes\User\UserEntity;
+use Enums\DateEnum;
 use DateTime;
 
 class ValidationService
@@ -64,5 +66,49 @@ class ValidationService
     public function isGender(?string $gender): bool
     {
         return !empty($gender);
+    }
+
+    public function isValidAuthHeader(string $auth_header, array &$matches): bool
+    {
+        return $auth_header && preg_match('/Bearer\s(\S+)/', $auth_header, $matches);
+    }
+
+    public function validateUser(UserEntity $userEntity): array
+    {
+        $errors = [];
+
+        if (!$this->isNotEmptyString($userEntity->getName())) {
+            $errors['name'] = 'Name is invalid.';
+        }
+
+        if (!$this->isEmail($userEntity->getEmail())) {
+            $errors['email'] = 'Email is invalid.';
+        }
+
+        if (!$this->isValidPassword($userEntity->getPassword())) {
+            $errors['password'] = 'Password is invalid.';
+        }
+
+        if (!$this->isPositiveInt($userEntity->getAge())) {
+            $errors['age'] = 'Age must be a positive integer.';
+        }
+
+        if (!$this->isGender($userEntity->getGender())) {
+            $errors['gender'] = 'Gender is invalid.';
+        }
+
+        if (!$this->isPhoneNumber($userEntity->getPhone())) {
+            $errors['phone'] = 'Phone number is invalid.';
+        }
+
+        if (!$this->isDate($userEntity->getCreatedAt(), DateEnum::DATE_FORMAT->value)) {
+            $errors['created_at'] = 'Created at is invalid.';
+        }
+
+        if (!$this->isDate($userEntity->getUpdatedAt(), DateEnum::DATE_FORMAT->value)) {
+            $errors['updated_at'] = 'Updated at is invalid.';
+        }
+
+        return $errors;
     }
 }
